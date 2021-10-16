@@ -9,7 +9,7 @@ published: false # 公開設定（falseにすると下書き）
 日本語のTLA+に関する文献があまりにも見つからないので、頑張って情報を日本語でまとめていきたいと思います。
 誤った情報や追記したい情報などは[こちら](https://github.com/riita10069/tlaplus-cheatsheet/blob/main/articles/bc689cae1c7bc0.md)にIssueまたは、PRを送っていただけると助かります。
 
-## 主要な情報源
+# 主要な情報源
 
 ### ドキュメントや講義など
 * [Leslie Lamport's TLA homepage](http://lamport.azurewebsites.net/tla/tla.html): ホームページです。
@@ -29,7 +29,7 @@ published: false # 公開設定（falseにすると下書き）
 * [Using lightweight formal methods to validate a key-value storage node in Amazon S3](https://www.amazon.science/publications/using-lightweight-formal-methods-to-validate-a-key-value-storage-node-in-amazon-s3): S3のkey-value storageにおいてFormal Validationを導入したという論文です。これもAWSが発行しています。
 * [Examples on GitHub](https://github.com/tlaplus/Examples): tlaplusのOrgで管理されているExampleのレポジトリです。あまり活発には動いていないのですが、書き方などを学ぶことができます。
 
-
+# 文法について
 ## 値と演算子
 
 TLA+には、`文字列`、`整数`、`ブール値`、`モデルバリュー`の4種類の値がある。
