@@ -3,11 +3,11 @@ title: "TLA+チートシート" # 記事のタイトル
 emoji: "😸" # アイキャッチとして使われる絵文字（1文字だけ）
 type: "tech" # tech: 技術記事 / idea: アイデア記事
 topics: ["TLA", "PlusCal", "形式手法", "モデル検査"] # タグ。["markdown", "rust", "aws"]のように指定する
-published: true # 公開設定（falseにすると下書き）
+published: false # 公開設定（falseにすると下書き）
 ---
 
 日本語のTLA+に関する文献があまりにも見つからないので、頑張って情報を日本語でまとめていきたいと思います。
-誤った情報や追記したい情報などはコメントにてお知らせいただければ、積極的に更新したいと思います。
+誤った情報や追記したい情報などは[こちら](https://github.com/riita10069/tlaplus-cheatsheet/blob/main/articles/bc689cae1c7bc0.md)にIssueまたは、PRを送っていただけると助かります。
 
 ## 主要な情報源
 
