@@ -63,6 +63,7 @@ set = {"a", "b", "c"}
 | set1 \union set2 | 和集合 |  |
 | set1 \intersect set2 | 積集合 |  |
 | set1 \ set2 | 差集合 |  |
+| SUBSET {"a", "b"} | 冪集合 | `{{}, {"a"}, {"b"}, {"a", "b"}}` |
 | Cardinarity(set1) | 要素数 | FiniteSets |
 
 以下のように集合の変換を行うこともできる
@@ -90,3 +91,170 @@ seq = <<1, "b", {3, 4}>>
 | seq1 \o seq2 | 結合 | `<<1,  2>> \o <<3, 4>>`>> `<<1, 2, 3, 4>>` |
 | Len(seq) | 長さ | `Len(<<1, 2, 3>>)`>>3 |
 | SubSeq(seq, index1, index2) | スライス | `SubSeq(seq, 1, Len(seq) - 1)` >> `末尾の要素以外` |
+
+
+### 構造体
+
+構造体は文字列に対して、値をマッピングすることができる。
+値へのアクセスは、`struct.key` でアクセスできる。
+一般のプログラミング言語におけるmapに近い機能に感じる。(構造体は実体ではないため)
+
+```
+author = [name |-> "riita", age |-> 22, gender |-> "male"]
+author.name
+>> "riita"
+```
+### 関数
+
+`[x \in 1..3 |-> x*2]` のように書くことができる。
+これは、`<<2, 4, 6>>`である。
+
+
+## アルゴリズム
+
+### if
+
+```
+if 条件1 then
+  body
+elsif 条件2 then
+  body
+else
+  body
+end if;
+```
+
+### while
+
+```
+while condition do
+    body
+end while;
+```
+
+### macros
+
+macroでは、代入、アサーション、if文などを表現できるが、while文は表現できないことに注意。
+
+```
+macro name(arg1, arg2) begin
+    body
+end macro;
+
+begin
+  name(x, y);
+end algorithm;
+```
+
+また、関数とは違いマクロの外側にある値への参照及び代入が可能である。
+
+### either
+
+eitherを使用すると、TLCは全ての分岐を検査する。
+このように書くことで、複数の選択肢から一つの分岐が選択されるようなモデルを表現できる。
+この機能は普通のプログラミング言語にない機能なので、TLA+を利用する強い動機になる。
+```
+either
+    分岐1
+or
+    分岐2
+or
+    分岐3
+end either;
+```
+
+### with
+
+withには2つの書き方があり、以下に列挙する。
+
+```
+with var = value do
+    body
+end with;
+```
+こちらの方法は、一時変数の作成に便利である。
+局所的に使用される変数は、可能な限り小さなスコープで用いるべきである。
+
+```
+with var \in set do
+    body
+end with;
+```
+こちらの方法は非決定論的に検査される。
+TLCは、varという変数がsetの要素であるという条件を満たす全ての状態を検査するためだ。
+
+
+## 不変条件
+
+不変条件とは、モデルの各ステップの最後に検査される条件である。
+
+
+### assert 
+
+不変条件の定義には、アサーションを使う方法がある。
+TRUEの場合には、何もせず、FALSEになるとエラーを送出する。
+なお、`EXTENDS TLC`が必要なことに注意。
+```
+begin
+  assert x;
+end
+```
+
+### Invariants
+
+Toolboxを使用している場合、モデルを作成する際に[Invariants]セクションに不変条件を選択することが可能。
+
+## 論理演算子
+
+不変条件は論理式によって定義される。
+
+### \A
+
+ \Aは全称条件を定義する。
+```
+\A n \in 1..10: n < 5
+>> FALSE
+```
+
+### \E
+
+ \Eは存在条件を定義する。
+```
+\A n \in 1..10: n < 5
+>> TRUE
+```
+
+### =>
+`P=>Q`は PならばQ を定義する。
+
+### <=>
+`P<=>Q`は PならばQ かつQならばP を定義する。
+
+## 式
+
+論理式により強力な表現を与えることができる構文を紹介する。
+
+
+### IF THEN ELSE
+
+```
+Max(x, y) == IF x > y THEN x ELSE y
+```
+
+### CASE
+
+```
+CASE n = 1 -> TRUE
+  [] n = 2 -> TRUE
+  [] OTHER -> FALSE
+```
+
+### CHOOSE
+
+`CHOOSE x \in S : 条件式` で条件式がTRUEとなるようなxを選択する。
+
+この仕組みは非常に強力で最大値を求める演算子の定義は以下になる。
+```
+Max(set) == CHOOSE x \in set: \A y \in set: x >= y
+```
+
