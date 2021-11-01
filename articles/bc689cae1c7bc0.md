@@ -11,7 +11,7 @@ published: true # 公開設定（falseにすると下書き）
 
 
 
-# 主要な情報源
+# TLA+の勉強法・学習法
 
 ### ドキュメントや講義など
 * [Leslie Lamport's TLA homepage](http://lamport.azurewebsites.net/tla/tla.html): ホームページです。
