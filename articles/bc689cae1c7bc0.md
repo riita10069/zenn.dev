@@ -14,6 +14,7 @@ published: true # 公開設定（falseにすると下書き）
 # TLA+の勉強法・学習法
 
 ### ドキュメントや講義など
+
 * [Leslie Lamport's TLA homepage](http://lamport.azurewebsites.net/tla/tla.html): ホームページです。
 * [Hyperbook](http://lamport.azurewebsites.net/tla/hyperbook.html): チュートリアルなどを扱ったHyperbookです。こちらのページからダウンロードが可能です。
 * [TLA video course](http://lamport.azurewebsites.net/video/videos.html): TLA+の作者であるLamprtさんの動画教材です。
@@ -25,10 +26,10 @@ published: true # 公開設定（falseにすると下書き）
 * [TLA+ in Practice and Theory](https://pron.github.io/tlaplus): TLA+で使用されている数学と原理・哲学について4部構成での動画講義です。
 
 ### 論文など
+
 * [Leslie Lamport papers](http://lamport.azurewebsites.net/tla/papers.html): TLA+の作者であるLamportさんが書いた論文がまとまっています。
 * [AWS and TLA+](http://lamport.azurewebsites.net/tla/amazon.html): AWSでは積極的にTLA+を活用しているようです。AWSが発行したTLA+導入に関する非常に有名な論文です。
 * [How to integrate formal proofs into software development](https://www.amazon.science/blog/how-to-integrate-formal-proofs-into-software-development): Automated Reasoningにおける形式手法の導入に関する論文です。これもAWSが発行しています。
-* [Using lightweight formal methods to validate a key-value storage node in Amazon S3](https://www.amazon.science/publications/using-lightweight-formal-methods-to-validate-a-key-value-storage-node-in-amazon-s3): S3のkey-value storageにおいてFormal Validationを導入したという論文です。これもAWSが発行しています。
 * [Examples on GitHub](https://github.com/tlaplus/Examples): tlaplusのOrgで管理されているExampleのレポジトリです。あまり活発には動いていないのですが、書き方などを学ぶことができます。
 
 # TLA+の使い方
@@ -168,8 +169,9 @@ end algorithm;
 ### either
 
 eitherを使用すると、TLCは全ての分岐を検査する。
-このように書くことで、複数の選択肢から一つの分岐が選択されるようなモデルを表現できる。
+このように書くことで、複数の選択肢から一つの分岐が選択されるような処理を表現できる。
 この機能は普通のプログラミング言語にない機能なので、TLA+を利用する強い動機になる。
+
 ```
 either
     分岐1
@@ -189,6 +191,7 @@ with var = value do
     body
 end with;
 ```
+
 こちらの方法は、一時変数の作成に便利である。
 局所的に使用される変数は、可能な限り小さなスコープで用いるべきである。
 
@@ -197,13 +200,14 @@ with var \in set do
     body
 end with;
 ```
+
 こちらの方法は非決定論的に検査される。
 TLCは、varという変数がsetの要素であるという条件を満たす全ての状態を検査するためだ。
 
 
 ## 不変条件
 
-不変条件とは、モデルの各ステップの最後に検査される条件である。
+不変条件とは、各ステップの最後に検査される条件である。
 
 
 ### assert 
@@ -279,7 +283,7 @@ Max(set) == CHOOSE x \in set: \A y \in set: x >= y
 
 ### ラベル
 
-ラベルは原子性の粒度を決定します。TLCはラベルを一つのステップで実行することでモデル化しています。
+ラベルは原子性の粒度を決定します。TLCはラベルを一つのステップとして実行するような処理を実現することができます。
 正しいモデリングのためにいくつかのルールがあることを押さえておく必要があります。
 
 - 各プロセスの初めと、各while文の前にはラベルが必要。
@@ -352,16 +356,17 @@ end procedure;
 ## 時相特性
 
 ### []
-常に
-状態列において、全てがTRUEであること。
+
+状態列において、全てが TRUE であること。
 
 ### <>
-最終的に
-状態列において、最終状態においてTRUEであること。
+
+状態列において、いつか TRUE の状態が訪れる
 
 ### []<>と<>[]
-`[]<>P`は、常に最終的には真を意味する。（FALSEになることがあっても最終的にはTRUEになれば良い）
-`<>[]P`は、最終的に常に真を意味する。（あるTRUE状態以降にFALSEに一度もならないようなTRUEが存在する）
+
+`[]<>P`は、FALSEになることがあってもいつかTRUEになる
+`<>[]P`は、あるTRUE状態以降にFALSEに一度もならないようなTRUEが存在する
 
 有限状態においては意味は同じだが、無限状態においては意味が異なる。
 
