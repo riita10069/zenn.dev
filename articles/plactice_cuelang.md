@@ -11,7 +11,9 @@ published: true # 公開設定（falseにすると下書き）
 ## Abstruct
 
 本記事においては、[`The CUE Configuration Language`](https://cue.googlesource.com/cue/+/572710333821c0c97f670164dc9fc315cf00815a/README.md)を用いて設定ファイルを記述することはどのようなメリットがあるのか。また、どのような使い方が想定されるのかについて議論する。
-実際の開発現場において、各マイクロサービスチームがKubernetesのManifestを生成するテンプレートとして活用している。そのため、KubernetesのManifestをcuelangを用いて記述することになる。
+私は、実際の開発現場において、各マイクロサービスチームがKubernetesのManifestを生成するテンプレートとして活用している。
+そのため、KubernetesのManifestをcuelangを用いて記述している。(この件に関する記事は現在執筆中だ。)
+その経験から、CUE言語がどのような言語であるかについてここで述べることにする。
 
 **Keyword: CUE, cuelang, configuration, 設定記述言語, JSON, YAML, Kubernetes, manifest**
 
