@@ -6,6 +6,7 @@ topics: ["CUE", "CUE言語", "cuelang", "設定記述用言語", "Configuration"
 published: true # 公開設定（falseにすると下書き）
 ---
 
+
 <a href="https://twitter.com/riita10069"><img src="https://img.shields.io/badge/Author-riita10069-4FC08D.svg?logo=&style=plastic"></a>
 
 ## Abstruct
