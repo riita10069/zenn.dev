@@ -7,7 +7,7 @@ published: true # 公開設定（falseにすると下書き）
 ---
 
 日本語のTLA+に関する文献がほとんど見つからないので、日本語でまとめていきたいと思います。
-誤った情報や追記したい情報などは[こちら](https://github.com/riita10069/zenn.dev/blob/main/articles/tlaplus_cheetsheet.md)にIssueまたは、PRを送っていただけると助かります。
+誤った情報や追記したい情報などは[こちら](https://github.com/riita10069/zenn.dev/blob/main/articles/bc689cae1c7bc0.md)にIssueまたは、PRを送っていただけると助かります。
 
 
 
