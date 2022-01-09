@@ -1,3 +1,11 @@
+---
+title: "設定記述用言語のCUE言語(cuelang)に入門" # 記事のタイトル
+emoji: "😸" # アイキャッチとして使われる絵文字（1文字だけ）
+type: "tech" # tech: 技術記事 / idea: アイデア記事
+topics: ["CUE", "CUE言語", "cuelang", "設定記述用言語", "Configuration"] # タグ。["markdown", "rust", "aws"]のように指定する
+published: true # 公開設定（falseにすると下書き）
+---
+
 <a href="https://twitter.com/riita10069"><img src="https://img.shields.io/badge/Author-riita10069-4FC08D.svg?logo=&style=plastic"></a>
 
 ## Abstruct
