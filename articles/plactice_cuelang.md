@@ -7,7 +7,6 @@ published: true # 公開設定（falseにすると下書き）
 ---
 
 
-<a href="https://twitter.com/riita10069">![](/images/author.png)</a>
 
 ## Abstruct
 
