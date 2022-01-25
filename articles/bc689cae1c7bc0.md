@@ -73,14 +73,14 @@ set = {"a", "b", "c"}
 
 | 演算子 | 意味 | EXTENDS |
 | --- | --- | --- |
-| x \in set  |集合setの要素x|   |
-| x \notin | 集合setの要素でないx |  |
-| set1 \subsetea set2 | set2の部分集合set1 |  |
-| set1 \union set2 | 和集合 |  |
-| set1 \intersect set2 | 積集合 |  |
-| set1 \ set2 | 差集合 |  |
-| SUBSET {"a", "b"} | 冪集合 | `{{}, {"a"}, {"b"}, {"a", "b"}}` |
-| Cardinarity(set1) | 要素数 | FiniteSets |
+| `x \in set`  |集合setの要素x|   |
+| `x \notin` | 集合setの要素でないx |  |
+| `set1 \subsetea set2` | set2の部分集合set1 |  |
+| `set1 \union set2` | 和集合 |  |
+| `set1 \intersect set2` | 積集合 |  |
+| `set1 \ set2` | 差集合 |  |
+| `SUBSET {"a", "b"}` | 冪集合 | `{{}, {"a"}, {"b"}, {"a", "b"}}` |
+| `Cardinarity(set1)` | 要素数 | FiniteSets |
 
 以下のように集合の変換を行うこともできる
 
@@ -101,12 +101,12 @@ seq = <<1, "b", {3, 4}>>
 
 | 演算子 | 意味 | 例 |
 | --- | --- | --- |
-| Head(seq)  | 先頭| `Head(<<1, 2, 3>>)`>>1  |
-| Tail(seq) | 先頭以外 | `Tail(<<1, 2, 3>>)`>> `<<2, 3>>` |
-| Append(seq, x) | 末尾に追加 | `Append(<<1, 2>>, 3)`>> `<<1, 2, 3>>`|
-| seq1 \o seq2 | 結合 | `<<1,  2>> \o <<3, 4>>`>> `<<1, 2, 3, 4>>` |
-| Len(seq) | 長さ | `Len(<<1, 2, 3>>)`>>3 |
-| SubSeq(seq, index1, index2) | スライス | `SubSeq(seq, 1, Len(seq) - 1)` >> `末尾の要素以外` |
+| `Head(seq)` | 先頭| `Head(<<1, 2, 3>>)`>>1  |
+| `Tail(seq)` | 先頭以外 | `Tail(<<1, 2, 3>>)`>> `<<2, 3>>` |
+| `Append(seq, x)` | 末尾に追加 | `Append(<<1, 2>>, 3)`>> `<<1, 2, 3>>`|
+| `seq1 \o seq2` | 結合 | `<<1,  2>> \o <<3, 4>>`>> `<<1, 2, 3, 4>>` |
+| `Len(seq)` | 長さ | `Len(<<1, 2, 3>>)`>>3 |
+| `SubSeq(seq, index1, index2)` | スライス | `SubSeq(seq, 1, Len(seq) - 1)` >> `末尾の要素以外` |
 
 
 ### 構造体
