@@ -19,7 +19,7 @@ published: true # 公開設定（falseにすると下書き）
 * [Hyperbook](http://lamport.azurewebsites.net/tla/hyperbook.html): チュートリアルなどを扱ったHyperbookです。こちらのページからダウンロードが可能です。
 * [TLA video course](http://lamport.azurewebsites.net/video/videos.html): TLA+の作者であるLamprtさんの動画教材です。
 * [Specifying Systems](http://lamport.azurewebsites.net/tla/book.html): Leslie Lamportによるもので、出版社を通じての注文や個人使用のためのダウンロードにリンクしています。
-* [Learn TLA](https://learntla.com/introduction/) もっとも詳細にTLA+及びPlusCalの文法や使い方について説明している場所です。現状唯一の情報源とも言えます。
+* [Learn TLA](https://learntla.com/) もっとも詳細にTLA+及びPlusCalの文法や使い方について説明している場所です。現状唯一の情報源とも言えます。
 	* [TLA+ Toolbox](https://github.com/tlaplus/tlaplus/) リリースタグよりIDEをインストールできます。ARM向けのものは開発されていないのでRosettaが必要になります。
 * [Plactical TLA+](https://www.amazon.co.jp/Practical-TLA-Planning-Driven-Development/dp/1484238281): 入門者向けのTLA+の書籍です。例も豊富で[サンプルコード](https://github.com/Apress/practical-tla-plus)もついているので非常におすすめです。これは、O'Reilly online learningで無料で読めます。
 * [Dr. TLA+](https://github.com/tlaplus/DrTLAPlus): アルゴリズムとTLA+の実装についての講義です。
