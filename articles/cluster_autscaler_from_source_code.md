@@ -64,11 +64,11 @@ CloudProvider側でNodeのProvisioningに失敗したかどうかは、Resyncで
 
 Expansion Optionを生成する
 
-1. どのNodeGroupのノードが何台必要かを計算する
+1.どのNodeGroupのノードが何台必要かを計算する
 https://github.com/kubernetes/autoscaler/blob/0c3e9d15d183ffa90e9d03ac79c51db22c68a792/cluster-autoscaler/expander/expander.go#L44-L49
 
 Optionそのものは上記のように、「あるNodeGroupを増やした場合、Nodeをいくつ増やすとどのPodがSchedule可能になるか。」を表すものである。
-2. どのようにExpansion Optionを計算しているかは下記
+2.どのようにExpansion Optionを計算しているかは下記
 https://github.com/kubernetes/autoscaler/blob/0c3e9d15d183ffa90e9d03ac79c51db22c68a792/cluster-autoscaler/core/scale_up.go#L266-L319
 
 実際のClusterSnapshotを用いて、Scheduling FrameworkのlisterとしてPodを振る舞わせることで、「あるPodがあるNodeGroupにSchedule可能であるか」を検証している。
