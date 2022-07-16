@@ -91,6 +91,7 @@ Binpacking Algolithmは以下のようなもの
    * [Bin packing problem - Wikipedia](https://en.wikipedia.org/wiki/Bin_packing_problem)
 * Expander Strategyの実行
   * 先ほど計算したOptionの中から適切なOptionを選択する
+
 https://github.com/kubernetes/autoscaler/blob/0c3e9d15d183ffa90e9d03ac79c51db22c68a792/cluster-autoscaler/expander/expander.go#L28-L40
 
 上記のように利用可能なExpanderは6種類
