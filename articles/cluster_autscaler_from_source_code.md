@@ -135,7 +135,7 @@ https://github.com/kubernetes/autoscaler/blob/0c3e9d15d183ffa90e9d03ac79c51db22c
 本記事では、実際のCluster Autoscalerがどのような基準でNodeを増やしたり減らしたりしているのかを説明した。
 Cluster Autoscalerの状態は、kube-system namespaceにあるConfigMapである、`cluster-autscaler-status`を見ることでもわかる。疑問が湧いたら、この記事にある基本的な挙動を念頭に前述のConfigMapの中身を見てみてはいかがだろうか。
 
-また、実際のスケールのメカニズムにはSchedulerやHPEの挙動と深く関係している。そのためそれらのコンポーネントについても理解を進める必要がある。
+また、実際のスケールのメカニズムにはSchedulerやHPAの挙動と深く関係している。そのためそれらのコンポーネントについても理解を進める必要がある。
 
 ## FAQ
 
