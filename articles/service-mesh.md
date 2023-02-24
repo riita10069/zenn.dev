@@ -152,9 +152,14 @@ Platformを作るのは、決して簡単なことではない。サービスメ
 なんかそれっぽく動く基盤を作るのではなく、価値のあるプラットフォームを創る覚悟がなければ、サービスメッシュを導入しても大きなリターンはないかもしれない。
 けれど、継続的に価値のあるプラットフォームを作り続けていくならば、サービスメッシュしかり、Kubernetesしかり、それらのControl Planeによる管理は大きな見返りのある投資なのである。
 
-さぁ、あなたはサービスメッシュに投資できますか？
 
-最後までお読み頂きありがとうございました。
+Envoyは「ネットワークレイヤーの課題はアプリケーションからは透過的であるべきである」という思想を掲げており、Istioはそれを体現したコントロールプレーンと考えている。
+さぁ、あなたはそのテネッツに共感できるか。そして、サービスメッシュに投資するか。
+
+もし、興味をもったら、下記のメルカリの事例でも、実際にenvoyの拡張を行っているので、ぜひお読みください。
+
+https://engineering.mercari.com/blog/entry/20210928-mtf2021-day5-4/
+
 
 ## References
 
@@ -170,3 +175,4 @@ https://speakerdeck.com/toricls/service-meshes-do-we-really-need-them-what-probl
 
 https://www.wantedly.com/companies/wantedly/post_articles/313884
 
+https://engineering.mercari.com/blog/entry/20210928-mtf2021-day5-4/
