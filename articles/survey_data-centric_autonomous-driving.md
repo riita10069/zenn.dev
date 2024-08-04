@@ -725,12 +725,9 @@ Teslaの AutoPilot Data プラットフォームは、Elluswamy に示されて�
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/309507/d2a1392e-f7cf-a27a-a697-fb5438a00547.png)
 出典 - Data-Centric Evolution in Autonomous Driving: A Comprehensive Survey of Big Data System, Data Mining, and Closed-Loop Technologies, https://arxiv.org/html/2401.12888v2
 
+その後、前述したようにデータセットの収集が重要だということが記されています。CARLAと世界モデルGAIA-1(Hu et al. 2023)について触れられていますが、すでに説明しているので割愛します。
+そこから、次の項のラベリング/アノテーションの自動化につながります。
 
-### 高精度の自動運転データ生成とシミュレーション技術の重要性の高まり
-
-前述したようにデータセットの収集が重要だということが記されています。CARLAと世界モデルGAIA-1(Hu et al. 2023)について触れられていますが、すでに説明しているので割愛します。
-
-CARLA(Dosovitskiy et al. 2017; Deschaud 2021)は、ユーザー指定の様々な設定の下で自動運転データを生成できるオープンソースシミュレータです。CARLAの利点は柔軟性にあり、ユーザーは多様な道路状況、交通シナリオ、天候ダイナミクスを作成できるため、包括的なモデルの訓練とテストが可能です。しかし、シミュレータである弱点として、実世界の物理とビジュアル効果を完全に模倣できない、実際の運転環境の動的で複雑な特性が表現されないというドメインギャップがあります。
 
 ### 自動運転データセットの自動ラベリング/アノテーション手法
 
