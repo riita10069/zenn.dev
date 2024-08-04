@@ -811,7 +811,6 @@ NVIDIA による調査によると、( https://medium.com/nvidia-ai/scalable-act
 
 以上が、https://arxiv.org/abs/2401.12888 の翻訳および要約です。
 
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/309507/1e03ff72-d164-e7dc-2d23-7e0f22e0ea67.png)
 
 #### Tesla Training Node Architecture - Dojo
 
