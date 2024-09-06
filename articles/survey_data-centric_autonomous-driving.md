@@ -748,7 +748,7 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9915627
 [https://aws.amazon.com/jp/blogs/news/how-volta-trucks-built-a-connected-vehicle-platform-using-aws-iot-fleetwise/](https://aws.amazon.com/jp/blogs/news/announcing-aws-iot-fleetwise-vision-system-data-preview/)
 
 
-![https://d2908q01vomqb2.cloudfront.net/f6e1126cedebf23e1463aee73f9df08783640400/2023/11/23/Vision-Systems-Diagram.png]()
+![https://d2908q01vomqb2.cloudfront.net/f6e1126cedebf23e1463aee73f9df08783640400/2023/11/23/Vision-Systems-Diagram.png](https://d2908q01vomqb2.cloudfront.net/f6e1126cedebf23e1463aee73f9df08783640400/2023/11/23/Vision-Systems-Diagram.png)
 
 IoT Fleetwise を利用すると、カメラ、LiDAR、レーダー、その他のビジョンサブシステムからのメタデータ、オブジェクトリストと検出データ、画像やビデオを収集できます。
 
