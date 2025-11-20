@@ -1,3 +1,7 @@
+---
+title: "2.3 センサー構成の設計（Camera / LiDAR / Radar / GNSS / IMU 他）"
+---
+
 # 2.3 センサー構成の設計（Camera / LiDAR / Radar / GNSS / IMU 他）
 
 この節では、車載センサー構成 (sensor configuration) の設計について解説します。Camera, LiDAR, Radar, GNSS, IMU などの代表的なセンサーの役割を整理し、視野・配置・オーバーラップ設計や夜間・悪天候への対応、Map-less / Map-based 前提による違いを議論します。データ中心・Closed-Loop の観点から、どのようなセンサー構成がどのようなデータを生み出し、後段の学習・評価に影響するのかを意識することが重要です。

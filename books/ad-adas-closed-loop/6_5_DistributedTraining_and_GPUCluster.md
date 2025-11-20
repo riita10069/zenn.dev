@@ -1,3 +1,7 @@
+---
+title: "6.5 分散学習の効率化と GPU Cluster 設計"
+---
+
 # 6.5 分散学習の効率化と GPU Cluster 設計
 
 この節では、分散学習 (distributed training) の効率化と GPU クラスタ設計について解説します。Data Parallel / Model Parallel / Pipeline Parallel、GPU 故障・ジョブ再開・チェックポイント設計、スケジューラ・ジョブキュー・優先度制御などを整理し、データ中心・Closed-Loop の観点から「再学習サイクルを短く保つためのインフラ設計」を考えます。

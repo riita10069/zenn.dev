@@ -1,0 +1,8 @@
+import pathlib, re
+  for path in pathlib.Path(".").glob("*.md"):
+      text = path.read_text(encoding="utf-8")
+      if text.lstrip().startswith("---\n"): continue
+      m = re.match(r"^\s*#\s*(.+)$", text.splitlines()[0] if text else "")
+      title = (m.group(1).strip() if m else path.stem).replace("\\","\\\\").replace('"','\\"')
+      fm = f'---\ntitle: "{title}"\n---\n\n'
+      path.write_text(fm + text, encoding="utf-8"); print("updated", path)
