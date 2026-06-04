@@ -927,3 +927,9 @@ UniAD は BEVFormer をモジュールとしてそのまま組み込んでいま
 6. Vaswani, A., et al. "Attention Is All You Need." NeurIPS 2017. https://arxiv.org/abs/1706.03762
 7. Zhu, X., et al. "Deformable DETR: Deformable Transformers for End-to-End Object Detection." ICLR 2021. https://arxiv.org/abs/2010.04159
 8. LeCun, Y. "A Path Towards Autonomous Machine Intelligence." Technical Report, 2022. https://openreview.net/pdf?id=BZ5a1r-kVsf
+
+---
+
+## 謝辞
+
+本記事で紹介した実装のコードレビューおよび設計方針について、Autoware Foundation President の Muhammad Zain Khawaja 氏に多くの助言をいただきました。この場を借りて感謝いたします。
