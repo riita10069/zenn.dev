@@ -782,9 +782,13 @@ bev_features = output.reshape(B, bev_h, bev_w, C).permute(0, 3, 1, 2)
 
 ---
 
-## 後段: 統合された特徴から予測する
+## 後段: 統合された特徴から何を予測するか
+
+View Fusion の出力 `[B, 1440, 7, 7]` は「車両周囲のシーンを1つにまとめた表現」です。ここから2つの予測を並列に行います。1つは走行軌跡の直接予測（DrivingPolicy）、もう1つは未来のシーン特徴の予測（FutureState）です。この2つは独立した出力ですが、学習時にはそれぞれ異なる Loss を生成し、合算してネットワーク全体を更新します。
 
 ### DrivingPolicy: 走行軌跡の予測
+
+DrivingPolicy は View Fusion の出力を受け取り、今後 6.4 秒間の走行軌跡を 128 次元のベクトルとして出力します。128 = 64 ステップ × 2（加速度と曲率）なので、10Hz で 6.4 秒先までの「どれだけ加速し、どれだけハンドルを切るか」を予測しています。
 
 ```
 統合シーン特徴 [2, 1440, 7, 7]
@@ -802,11 +806,17 @@ bev_features = output.reshape(B, bev_h, bev_w, C).permute(0, 3, 1, 2)
 出力: 64ステップ × (加速度, 曲率) = 6.4秒先の走行軌跡
 ```
 
+visual_history は過去フレームで FutureState が出力した圧縮特徴の蓄積（後述）、egomotion は車両自身の速度・加速度・ヨー角の時系列です。つまり DrivingPolicy は「今見えている景色」「過去の景色の記憶」「自分の動き」の3つを入力に取って軌跡を出します。
+
+学習時には、人間ドライバーの実際の走行軌跡を正解とし、予測軌跡との差（MSE 等）を trajectory loss として使います。
+
 :::message alert
-`flatten(start_dim=1)` が重要。`start_dim=1` を指定することでバッチ次元（dim=0）を保持しつつ、それ以降を1次元に展開します。旧コードでは引数なしの `flatten()` でバッチ次元も潰してしまい、batch_size=1 でしか動かないバグがありました。
+`flatten(start_dim=1)` が重要です。`start_dim=1` を指定することでバッチ次元（dim=0）を保持しつつ、それ以降を1次元に展開します。旧コードでは引数なしの `flatten()` でバッチ次元も潰してしまい、batch_size=1 でしか動かないバグがありました。
 :::
 
-### FutureState: 未来の視覚特徴予測
+### FutureState: 未来の視覚特徴予測と Feature Reconstruction Loss
+
+FutureState は View Fusion の出力から「1.6 秒後、3.2 秒後、4.8 秒後、6.4 秒後のシーンがどのような特徴表現になるか」を予測します。出力は画像ではなく特徴マップ（`[B, 1440, 7, 7]` × 4）です。
 
 ```
 統合シーン特徴 [2, 1440, 7, 7]
@@ -820,7 +830,44 @@ bev_features = output.reshape(B, bev_h, bev_w, C).permute(0, 3, 1, 2)
 出力: 1.6秒間隔 × 4 = 6.4秒先までの未来の視覚特徴
 ```
 
-これは JEPA（Joint Embedding Predictive Architecture, LeCun 2022）の考え方に基づいています。「未来の画像」ではなく「未来の特徴表現」を予測します。ピクセルではなく意味空間で予測するため、計算効率と汎化性が高くなります。
+### FutureState が学習にどう繋がるか
+
+ここが初心者にとってわかりにくい部分です。FutureState の出力は推論時には直接使いませんが、学習時に非常に重要な役割を果たします。
+
+学習時には時系列データ（連続フレーム）を使います。あるフレーム t で FutureState が予測した「1.6 秒後の特徴」が、実際に 1.6 秒後のフレーム t+16 の画像を FrozenBackbone（重みを凍結した Backbone）に通して得た特徴と一致するかを比較します。
+
+```
+フレーム t:
+  画像 → Backbone → Fusion → FutureState → 予測特徴 (t+1.6s の予測)
+
+フレーム t+16 (実際の 1.6秒後):
+  画像 → FrozenBackbone → Fusion → 実際の特徴 (t+1.6s の実測)
+
+Feature Reconstruction Loss = MSE(予測特徴, 実際の特徴)
+```
+
+この Loss が小さくなるということは、モデルが「今のシーンを見て、1.6 秒後にシーンがどう変化するか」を内部特徴のレベルで正しく予測できていることを意味します。
+
+### なぜ画像ではなく特徴を予測するのか
+
+ピクセルレベルの未来予測（次のフレームの画像そのものを生成）は計算が重く、照明変化やテクスチャの細部に左右されやすい問題があります。JEPA（Joint Embedding Predictive Architecture, LeCun 2022）の考え方では、意味的に重要な情報だけを抽出した特徴空間で予測することにより、計算コストを下げつつ「シーンの本質的な変化」だけを捉えることができます。
+
+### FutureState が DrivingPolicy の学習を助ける仕組み
+
+FutureState は auxiliary task（補助タスク）として機能します。trajectory loss だけでネットワーク全体を学習すると、Backbone や View Fusion に対して「どんな特徴を抽出すべきか」の教師信号が間接的で弱くなります。feature reconstruction loss を追加することで、Backbone と View Fusion に対して「シーンの時間変化を予測できるだけの情報を抽出しろ」という直接的な学習圧力がかかります。
+
+学習時の total loss は以下のように合算されます:
+
+```python
+total_loss = trajectory_loss + λ * feature_reconstruction_loss
+# λ は2つの loss のバランスを取るハイパーパラメータ
+```
+
+この仕組みにより、DrivingPolicy 単体で学習するよりも Backbone の特徴抽出が豊かになり、結果として軌跡予測の精度も向上することが期待されます。
+
+### Introspection（内省）としての利用
+
+学習後、FutureState の予測を可視化すると「モデルがシーンの変化をどう理解しているか」を確認できます。予測特徴が実際の未来特徴と大きく乖離するフレームは、モデルが予期しない状況（急な飛び出し等）に直面したことを示唆します。これを安全性の指標や不確実性の推定に使うことが introspection の意味です。
 
 ---
 
