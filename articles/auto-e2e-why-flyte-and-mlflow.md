@@ -332,6 +332,40 @@ Flyte は全ての実行を不変レコードとして記録します。
 「このモデルはどのデータ、どのコード、どのハイパーパラメータ、どのインフラで作られたか」という規制当局の問いに対して、事後調査なしに即答できます。
 自動運転開発ではこれは「あると便利」ではなく法的必須要件です。
 
+### Flyte をどう使っているか
+
+ここまで機能の説明をしてきたので、日常的にどう使っているかを書きます。
+
+AutoE2E の開発では、基本的に Flyte Console（Web UI）からパイプラインを起動します。
+左メニューの Workflows から `wf_full_pipeline` を選び、「Launch Workflow」を押すとフォームが出ます。
+dataset はドロップダウンで L2D か NVIDIA を選び、backbone と fusion_mode もドロップダウンで選び、epochs や lr は数値を入力して Launch。
+これだけでデータ取り込みから学習、評価、Model Registry 登録までが一気通貫で走ります。
+
+起動後は DAG ビューでノードが Pending → Running → Succeeded と色が変わっていくのをリアルタイムで確認できます。
+GPU ノードの起動に1〜3分かかる（Karpenter がプロビジョニングする時間）ので、`train_il` ノードが Pending のまましばらく待つのは正常です。
+
+あるノードが赤く失敗したら、そのノードをクリックするとエラーメッセージと Kubernetes Pod のログが表示されます。
+OOMKilled なら Resources のメモリを上げる、ImagePullBackOff なら ECR のイメージ名を確認する、といった対処が即座にわかります。
+修正後は同じ実行ページの「Relaunch」ボタンで同じ入力パラメータのまま再実行できます。
+あるいは recovery モードを使えば、失敗ノード以降だけを再実行し、成功済みのノード（数時間かかったデータ前処理や学習）はスキップできます。
+
+コントリビューターが新しい backbone を追加した場合のワークフローは以下のようになります。
+
+1. `Backbone` Enum に新しい値を追加し、`build_backbone` に対応コードを書く
+2. ローカルで `pyflyte run workflows.py wf_train_il --backbone NEW_BACKBONE ...` を実行し、小さいデータで動作確認
+3. PR を出す。CI で `pyflyte register --dry-run` が走り、型エラーがないことを確認
+4. マージ後、CodeBuild が Docker イメージをビルドし、`pyflyte register` でワークフローの新バージョンが Flyte に登録される
+5. Flyte Console で最新バージョンのワークフローを Launch。新しい backbone がドロップダウンに出現している
+
+このとき、既存の backbone（swin_v2_tiny など）の過去の実行は全て保存されています。
+新しい backbone との比較は、MLflow で同じ条件の Run をフィルタするだけです。
+ワークフローのバージョン管理と実験管理が自然に連動するため、「どのコードバージョンでどの backbone を試したか」が曖昧になることがありません。
+
+パイプライン全体を起動せず、部分的に使うことも日常的にあります。
+たとえばデータの前処理だけ回したい場合は `wf_data_processing` を起動し、出力の `FlyteDirectory` URI（S3 パス）をコピーします。
+その URI を別の `wf_train_il` の `shards` 入力に貼り付ければ、前処理結果を使い回して学習だけ走らせられます。
+各ワークフローの出力は S3 上にアドレス可能な形で残るため、部品の再利用が自由にできます。
+
 ---
 
 ## MLflow：実験管理とモデルガバナンス
