@@ -334,11 +334,10 @@ Flyte は全ての実行を不変レコードとして記録します。
 
 ### Flyte をどう使っているか
 
-ここまで機能の説明をしてきたので、日常的にどう使っているかを書きます。
 
 AutoE2E の開発では、基本的に Flyte Console（Web UI）からパイプラインを起動します。
 左メニューの Workflows から `wf_full_pipeline` を選び、「Launch Workflow」を押すとフォームが出ます。
-dataset はドロップダウンで L2D か NVIDIA を選び、backbone と fusion_mode もドロップダウンで選び、epochs や lr は数値を入力して Launch。
+backbone と fusion_mode もドロップダウンで選び、epochs や lr は数値を入力して Launch。
 これだけでデータ取り込みから学習、評価、Model Registry 登録までが一気通貫で走ります。
 
 起動後は DAG ビューでノードが Pending → Running → Succeeded と色が変わっていくのをリアルタイムで確認できます。
@@ -361,10 +360,43 @@ OOMKilled なら Resources のメモリを上げる、ImagePullBackOff なら EC
 新しい backbone との比較は、MLflow で同じ条件の Run をフィルタするだけです。
 ワークフローのバージョン管理と実験管理が自然に連動するため、「どのコードバージョンでどの backbone を試したか」が曖昧になることがありません。
 
-パイプライン全体を起動せず、部分的に使うことも日常的にあります。
-たとえばデータの前処理だけ回したい場合は `wf_data_processing` を起動し、出力の `FlyteDirectory` URI（S3 パス）をコピーします。
-その URI を別の `wf_train_il` の `shards` 入力に貼り付ければ、前処理結果を使い回して学習だけ走らせられます。
-各ワークフローの出力は S3 上にアドレス可能な形で残るため、部品の再利用が自由にできます。
+実際の開発では、パイプライン全体（`wf_full_pipeline`）を毎回通しで起動することはほとんどありません。
+日常的には部品ごとに個別のワークフローを起動し、出力 URI を次のワークフローに渡す形で運用しています。
+
+たとえばデータセットの Hz 数や解像度を変えたい場合を考えます。
+`data_processing` タスクのコードを修正して `hz=20` や `image_size=512` に変更し、`pyflyte register` でワークフローを再登録します。
+Flyte Console から `wf_data_processing` を起動して、新しいパラメータで前処理を走らせます。
+
+```
+wf_data_processing:
+  raw_data: s3://auto-e2e-platform-artifacts/.../raw/l2d/
+  dataset: L2D
+  hz: 20           ← 10Hz から 20Hz に変更
+  image_size: 512  ← 256 から 512 に変更
+  episodes: 10
+```
+
+完了すると出力の `FlyteDirectory` URI が Flyte Console の Outputs パネルに表示されます。
+`s3://auto-e2e-platform-artifacts/.../shards/l2d-20hz-512px/` のようなパスです。
+
+次に `wf_train_il` を起動し、`shards` 入力にこの URI を貼り付けるだけで、新しいデータセットを使った学習が走ります。
+
+```
+wf_train_il:
+  shards: ["s3://auto-e2e-platform-artifacts/.../shards/l2d-20hz-512px/"]
+  dataset: L2D
+  backbone: SWIN_V2_TINY
+  fusion_mode: BEV
+  epochs: 10
+```
+
+データセットの構成を変えたいときはデータ前処理だけ再実行し、モデルのハイパーパラメータを変えたいときは学習だけ再実行する。
+前処理の出力は S3 上にアドレス可能な形で残り続けるため、一度作ったデータセットは何度でも再利用できます。
+「20Hz / 512px のデータセット」と「10Hz / 256px のデータセット」を両方手元に持っておき、同じ backbone で学習して精度を比較する、ということが URI を差し替えるだけで実現します。
+
+この「パーツを独立に回して URI で繋ぐ」運用は、フルパイプラインを毎回通しで実行するよりも柔軟です。
+データ前処理に1時間かかるとして、backbone の ablation を5パターン試したい場合、フルパイプラインなら前処理が5回走ります。
+部分実行なら前処理は1回で済み、その出力 URI を5つの `wf_train_il` に渡すだけです。
 
 ---
 
