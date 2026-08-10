@@ -3,7 +3,7 @@ title: "Cosmos 3による自動運転動画の時系列シーンラベリング�
 emoji: "🚘"
 type: "tech"
 topics: ["自動運転", "VLM", "ComputerVision", "AWS", "MLOps"]
-published: true
+published: false
 ---
 
 :::message
