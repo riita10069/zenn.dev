@@ -22,7 +22,7 @@ published: true
 
 自動運転の研究開発では、長時間の走行動画から特定の状況を検索し、データセットの分布や不足領域を把握する必要がある。
 しかし、車両や歩行者の存在を検出するだけでは、車線変更、歩行者横断、停止車両、信号状態のような時系列の意味を十分に表現できない。
-本研究では、動画と言語を同時に扱うCosmos 3を用い、公開ROADデータセットから構築した8秒区間（以下、clip）に13種類の**シーンラベル**を付与する方法を検討した。
+本研究では、動画と言語を同時に扱うCosmos 3を用い、公開ROADデータセットから構築した8秒区間（以下、clip）に13種類のシーンラベルを付与する方法を検討した。
 
 評価では、Cosmos 3 NanoとSuper、フレーム選択、判定プロンプト、Visual Odometry（VO：映像からカメラ運動を推定する方法）による自車運動の融合、GPU推論サーバー設定を比較した。
 15本の評価用元動画から得た875 clipsでは、同じAdaptive 24-frame条件でSuperの映像判定がPrecision 81.9%、Recall 68.3%、F1 74.5%を示し、NanoのF1 68.9%を上回った。
@@ -71,7 +71,7 @@ flowchart LR
 停止車両の判定には相対位置が時間的に変化しないこと、歩行者横断には人物trackが道路領域を横切ること、車線変更には自車がlane boundaryを越えて別laneへ移ることが必要になる。
 したがって、シーンラベリングには物体の存在、時間変化、道路構造、行動の意味を組み合わせる必要がある。
 
-**Vision-Language Model（VLM）**は、動画と自然言語の判定基準を同じ推論器に入力できる。
+Vision-Language Model（VLM）は、動画と自然言語の判定基準を同じ推論器に入力できる。
 タグごとに個別の分類器を学習しなくても、「道路の右カーブではなく交差点で右折した場合だけpositive」といった基準をPromptとして記述できる点が利点である。
 一方、入力フレームの選び方、Promptの曖昧さ、小さな対象物、複数タグの競合、GPU費用が性能を左右する。
 
@@ -91,15 +91,15 @@ flowchart LR
 ### 2.1 定式化
 
 以下では、学会原稿と同一の記号体系を用いる。
-8秒の走行clipを \(v\in\mathcal{V}\)、対象タグを \(t\in\mathcal{T}\) とする。
-clipから選択したframe集合を \(M(v)\)、各frameの元動画時刻列を \(\tau(v)\)、タグ定義と判定手続を \(D\)、VLMを \(f_\theta\) とすると、映像予測は次式で表される。
+8秒の走行clipを $v\in\mathcal{V}$、対象タグを $t\in\mathcal{T}$ とする。
+clipから選択したframe集合を $M(v)$、各frameの元動画時刻列を $\tau(v)$、タグ定義と判定手続を $D$、VLMを $f_\theta$ とすると、映像予測は次式で表される。
 
 $$
 \hat{\mathbf{y}}(v)=f_\theta\!\left(M(v),\tau(v),D\right)
 $$
 
-\(\hat{\mathbf{y}}(v)\) は13タグの二値予測である。
-本研究で比較するsamplingとPromptは、それぞれ \(M(v)\) と \(D\) を変更する操作に対応する。
+$\hat{\mathbf{y}}(v)$ は13タグの二値予測である。
+本研究で比較するsamplingとPromptは、それぞれ $M(v)$ と $D$ を変更する操作に対応する。
 この定式化により、frame選択、timestamp表現、タグ定義、モデル規模を別の操作因子として扱える。
 
 ### 2.2 対象ラベル
@@ -108,7 +108,7 @@ $$
 1本のclipには複数タグが同時に付与される。
 対象タグと、判定に本来必要となる証拠を表1に示す。
 
-**表1　対象タグ、ROAD原ラベル、GT閾値、主要な判定証拠**
+表1　対象タグ、ROAD原ラベル、GT閾値、主要な判定証拠
 
 | Index | タグ | ROAD原ラベル | Positive基準 | 判定に必要な主な証拠 |
 | ---: | --- | --- | ---: | --- |
@@ -143,7 +143,7 @@ clip内の全frameが注釈済みであることを必須とし、unknownのclip
 構築後のbenchmarkは18 source videos、1,044 clipsである。
 ROADが提供する分割定義の一つである公式fold 3に基づき、Development 169 clipsとEvaluation 875 clipsへsource video単位で分離した。
 
-**表2　DevelopmentとEvaluationの分割**
+表2　DevelopmentとEvaluationの分割
 
 | 項目 | Development | Evaluation |
 | --- | ---: | ---: |
@@ -163,7 +163,7 @@ micro F1は全clip-tag pairをまとめて計算するため、出現数の多�
 MCCはpositiveとnegativeの比率が偏る場合にも、4種類のconfusion matrix要素をまとめて評価しやすい指標である。
 出力不備を見逃さないため、有効な二値出力を返した既知clip-tag pairの割合をpair coverageとして記録した。
 Evaluationには11,314 known pairsと61 unknown pairsが含まれる。
-unknownは品質指標の分母から除外する一方、要求したタグの欠落やparse不能な出力はnegativeへ丸めず、abstention \(\bot\) としてstrict指標へ残した。
+unknownは品質指標の分母から除外する一方、要求したタグの欠落やparse不能な出力はnegativeへ丸めず、abstention $\bot$ としてstrict指標へ残した。
 Developmentではpair coverage 99%以上を採用条件とし、coverage不足を高いF1で覆い隠せないようにした。
 
 信頼区間はclipを独立標本として扱わず、source videoを単位として再標本化するblock bootstrapで算出した。
@@ -176,7 +176,7 @@ Developmentではpair coverage 99%以上を採用条件とし、coverage不足�
 各質問は、単に比較項目を列挙するものではない。
 実験前に抱いていた仮説と、比較時に固定する条件を対応付ける役割を持つ。
 
-**表3　研究質問と事前に定めた比較方針**
+表3　研究質問と事前に定めた比較方針
 
 | ID | 研究質問と実験前の仮説 | 操作因子と固定条件 | データと採否規則 |
 | --- | --- | --- | --- |
@@ -222,7 +222,7 @@ VOの数値を自然言語として全タグのPromptへ挿入すると、歩行
 実装上のデータ契約を表4に示す。
 ここでは、Evaluationまで実証済みの経路と、DevelopmentまたはOracle診断に留まるextensionを分けている。
 
-**表4　1 clipを処理する際のデータ契約**
+表4　1 clipを処理する際のデータ契約
 
 | 段階 | 入力 | 出力 | 実証水準 |
 | --- | --- | --- | --- |
@@ -269,7 +269,7 @@ Mixed samplingではpeakを1箇所に限定した。
 
 ### 3.3 Reasoned Prompt
 
-**Reasoned Prompt**は、タグごとの肯定証拠、時間変化、反証を照合する順序を入力契約として明示する方式である。
+Reasoned Promptは、タグごとの肯定証拠、時間変化、反証を照合する順序を入力契約として明示する方式である。
 長い思考過程を外部へ出力させるChain-of-Thoughtではない。
 モデル内部で確認すべき順序を指定し、最終出力はpositive tagのindexだけに限定する。
 出力を短く保つことで、自由記述によるparse failureとDecode費用を抑えた。
@@ -284,13 +284,13 @@ Mixed samplingではpeakを1箇所に限定した。
 
 Baseline Promptでは、各タグを1文程度で定義した。
 詳細版では、追跡対象、肯定証拠、時間変化、類似行動との区別、negative条件を明示した。
-タグ \(t\) の詳細定義は、学会原稿と同じく次の5要素で表す。
+タグ $t$ の詳細定義は、学会原稿と同じく次の5要素で表す。
 
 $$
 D_t=(m_t,o_t,e_t,\Delta_t,r_t)
 $$
 
-ここで \(m_t\) はタグの意味、\(o_t\) は追跡対象、\(e_t\) はpositiveを支持する視覚証拠、\(\Delta_t\) は複数timestamp間で確認すべき変化、\(r_t\) は類似事象を除外する反証である。
+ここで $m_t$ はタグの意味、$o_t$ は追跡対象、$e_t$ はpositiveを支持する視覚証拠、$\Delta_t$ は複数timestamp間で確認すべき変化、$r_t$ は類似事象を除外する反証である。
 たとえば車線変更では、道路の右左折やカメラ運動ではなく、同じ道路上で隣接laneへ移ることを要求した。
 
 ```text
@@ -313,7 +313,7 @@ Reject when:
 
 ### 3.4 Hybrid Core Prompt
 
-**Hybrid Core Prompt**は、次の5タグだけに詳細なReasoning基準を適用し、残り8タグは短い定義を維持する。
+Hybrid Core Promptは、次の5タグだけに詳細なReasoning基準を適用し、残り8タグは短い定義を維持する。
 
 - 自車左折
 - 車線変更
@@ -344,7 +344,7 @@ indexとタグの対応は表1で固定し、Prompt config、parser、評価器�
 
 ### 3.6 Visual Odometryによる決定論的fusion
 
-**Visual Odometry（VO）**は、動画内の静的背景featureを追跡し、カメラ運動を推定する方法である。
+Visual Odometry（VO）は、動画内の静的背景featureを追跡し、カメラ運動を推定する方法である。
 本研究では、元動画を5 frames間隔、幅480 pxへ縮小して走査した。
 空や道路中央の移動物体へ特徴点が偏らないよう、背景寄りの領域から最大800個のShi--Tomasi特徴点を抽出し、Lucas--Kanade法で前後方向に追跡した。
 forward--backward誤差1.5 px以下かつ20 tracks以上を有効なframe pairとし、median visual flow、0.8 px未満のlow-motion pair率、Essential MatrixのRANSAC inlier率、累積visual yawをclip単位へ要約した。
@@ -366,17 +366,17 @@ Developmentで規則と閾値を固定し、Evaluationでは変更しなかっ�
 最終的に非identityの更新を採用したのは自車走行、自車停止、自車左折の3タグである。
 右折、車線変更、Map contextも試したが、Developmentで改善しないか悪化したためVLM予測を保持した。
 
-VO特徴を \(\mathbf{z}(v)\)、Developmentで固定したタグ別規則と閾値を \(g_t(\cdot;\phi_t)\) とすると、fusion後の予測は学会原稿と同じ次式で定義する。
+VO特徴を $\mathbf{z}(v)$、Developmentで固定したタグ別規則と閾値を $g_t(\cdot;\phi_t)$ とすると、fusion後の予測は学会原稿と同じ次式で定義する。
 
 $$
 \tilde{y}_t(v)=g_t\!\left(\hat{y}_t(v),\mathbf{z}(v);\phi_t\right)
 $$
 
-規則を持たないタグでは \(\tilde{y}_t(v)=\hat{y}_t(v)\) とする。
+規則を持たないタグでは $\tilde{y}_t(v)=\hat{y}_t(v)$ とする。
 すなわち、VOを13タグ全体の分類器として使うのではなく、自車運動と直接関係するタグにだけpromotionまたはvetoを適用する。
 Developmentで最終的に固定した規則を表5に示す。
 
-**表5　Developmentで固定したVO motion prior規則**
+表5　Developmentで固定したVO motion prior規則
 
 | 対象タグ | 映像予測を変更する条件 |
 | --- | --- |
@@ -395,24 +395,24 @@ Oracle診断とは、通常の推論時には利用できない正解時刻や�
 GT event時刻を使って対象周辺を高密度化したため、そのまま実運用へ適用できない。
 本番ではdetector、tracker、lane推定、VOなどがVLMのnegativeと矛盾する候補を検出し、GT時刻を近似する必要がある。
 
-論文では、外部証拠がタグ \(t\) を支持し、一次予測がnegativeである場合だけ再判定するrouting変数を次式で定義した。
+論文では、外部証拠がタグ $t$ を支持し、一次予測がnegativeである場合だけ再判定するrouting変数を次式で定義した。
 
 $$
 q_t(v)=\mathbb{1}\!\left[\hat y_t(v)=0\ \land\ c_t(v)\ge\gamma_t\right]
 $$
 
-ここで \(c_t(v)\) はタグ固有のcandidate score、\(\gamma_t\) はDevelopmentで固定する閾値である。
-\(q_t(v)=1\) の場合だけ、候補時刻の前後を8 FPS相当で密にした48-frame evidence \(M_{48,t}(v)\) を作る。
+ここで $c_t(v)$ はタグ固有のcandidate score、$\gamma_t$ はDevelopmentで固定する閾値である。
+$q_t(v)=1$ の場合だけ、候補時刻の前後を8 FPS相当で密にした48-frame evidence $M_{48,t}(v)$ を作る。
 本研究ではこのproduction候補生成器をFull Runしておらず、後述するGT Oracle診断によって到達可能性だけを測った。
 
-タグ別YES/NO passでは、最初の意味tokenに対するlog probability \(\ell_{\mathrm{YES}}\) と \(\ell_{\mathrm{NO}}\) から、学会原稿と同じ未校正scoreを求める。
+タグ別YES/NO passでは、最初の意味tokenに対するlog probability $\ell_{\mathrm{YES}}$ と $\ell_{\mathrm{NO}}$ から、学会原稿と同じ未校正scoreを求める。
 
 $$
 s_t(v)=\frac{\exp \ell_{\mathrm{YES}}}
 {\exp \ell_{\mathrm{YES}}+\exp \ell_{\mathrm{NO}}}
 $$
 
-\(s_t(v)\) は校正済み確率ではなく、YESとNOの相対的な未校正scoreである。
+$s_t(v)$ は校正済み確率ではなく、YESとNOの相対的な未校正scoreである。
 実運用で用いるには、診断集合とは独立したcalibration setでタグ別閾値を固定する必要がある。
 
 診断では、通常の24枚、GT event周辺へ再配置した24枚、同周辺を48枚へ増やした条件、Region of Interest（ROI：注目領域）mosaic、匿名track summaryを比較した。
@@ -425,7 +425,7 @@ $$
 本研究では、数値の役割を三つに分けた。
 同じF1であっても、Evaluation、Development、難例診断の値は意味が異なる。
 
-**表6　実験結果の証拠水準**
+表6　実験結果の証拠水準
 
 | 水準 | データ | 用途 | 主張できること |
 | --- | --- | --- | --- |
@@ -461,16 +461,16 @@ Nanoはtensor parallel 1、`max-model-len=32768`である。
 この順序は、Superの高い実行費用を抑えるためだけではない。
 少数例で見つけた方式を、そのまま母集団性能として扱うことと、Evaluationを見ながら方式を調整することを避けるためである。
 
-**Smoke**では、request failure、parse failure、preemption、明らかな品質劣化を確認した。
+Smokeでは、request failure、parse failure、preemption、明らかな品質劣化を確認した。
 ここでの目的は方式の成立性を確かめることであり、少数clipのF1を最終品質として報告することではない。
 不安定な候補や、入力を増やしただけで品質が悪化する候補はDevelopmentへ進めなかった。
 
-**Development**では、pair coverage 99%以上を必須とし、micro F1、MCC、Balanced Accuracyを主に、Prompt長、latency、費用を副に見て候補を絞った。
+Developmentでは、pair coverage 99%以上を必須とし、micro F1、MCC、Balanced Accuracyを主に、Prompt長、latency、費用を副に見て候補を絞った。
 複雑な方式は単純baselineを上回る場合だけ残した。
 候補差をsource-video block bootstrapで識別できない場合は、短く実装しやすい方式を選んだ。
 Hybrid TemporalではなくHybrid Coreを採用したのは、この規則による。
 
-**Evaluation**では、条件、閾値、Promptを再調整しなかった。
+Evaluationでは、条件、閾値、Promptを再調整しなかった。
 paired差の信頼区間が0を跨ぐ場合は、点推定値が高くても明確な改善とは主張しない。
 追加VLM passは、対象タグの改善が追加費用と誤変更を上回る場合に限って採用し、無関係なタグの揺らぎが支配する条件は棄却した。
 
@@ -480,7 +480,7 @@ paired差の信頼区間が0を跨ぐ場合は、点推定値が高くても明�
 ### 4.4 費用算定
 
 GPU費用は、実測したrun wall timeとOn-Demand instance単価から1,000 clips当たりへ換算した。
-instanceの1時間当たり単価を \(p\)、clip当たりwall timeを \(t\) 秒とすると、定常状態のEC2費用を学会原稿と同じ次式で算出する。
+instanceの1時間当たり単価を $p$、clip当たりwall timeを $t$ 秒とすると、定常状態のEC2費用を学会原稿と同じ次式で算出する。
 
 $$
 C_{1000}=p\frac{t}{3600}\times 1000
@@ -489,7 +489,7 @@ $$
 Full Runの費用はモデル品質表に、controlled serving sweepの費用はServing設定比較にのみ用いる。
 両者はclip集合、request順、cache状態が異なるため、絶対値を横断して比較しない。
 
-換算に用いたOn-Demand単価は、us-west-2におけるg6e.2xlargeの$2.24208/hとg6.24xlargeの$6.6752/hである。
+換算に用いたOn-Demand単価は、us-west-2におけるg6e.2xlargeのUSD 2.24208/hとg6.24xlargeのUSD 6.6752/hである。
 費用には、EKS control plane、storage、network、model startup、idle time、CPU前処理を含めない。
 VO fusionは追加GPU requestを必要としないが、CPU上のfeature tracking費用は未計測である。
 したがって、この費用はrequestが継続して供給される定常状態のEC2下限であり、「同じGPU推論費用」は「総システム費用が完全に同じ」という意味ではない。
@@ -531,13 +531,13 @@ Rare sceneはEvaluationでGT prevalenceが10%以下かつpositiveが1件以上�
 Development 169 clipsで、Adaptive、Mixed sampling（論文中のHybrid sampling）、Uniformの24-frame条件を比較した。
 Reasoned Promptと他の入力条件を固定した結果を表7に示す。
 
-**表7　Developmentにおけるフレーム選択の比較**
+表7　Developmentにおけるフレーム選択の比較
 
 | Sampling | Precision | Recall | F1 | MCC |
 | --- | ---: | ---: | ---: | ---: |
 | Adaptive 24枚 | 73.3% | 67.3% | 70.2% | 0.609 |
 | Mixed sampling 24枚 | 72.1% | 68.6% | 70.3% | 0.608 |
-| Uniform 24枚 | **74.1%** | 68.4% | **71.1%** | **0.621** |
+| Uniform 24枚 | 74.1% | 68.4% | 71.1% | 0.621 |
 
 DevelopmentではUniformが最良だった。
 motion peakへframeを集中させるAdaptiveが優位でなかった理由は、画面全体のmotionが意味イベントの発生時刻と一致しないためだと考えられる。
@@ -555,13 +555,13 @@ Nano上でSampling差を明確に識別できず、Superの追加Full Runは高�
 表8の`any`はevent内に1枚以上、`2 frames`は2枚以上、`span`はevent内で0.5秒以上の時間幅、`context`はevent開始前と終了後の双方を含む割合である。
 この集計にGT時刻は用いるが、frame選択そのものには用いていない。
 
-**表8　DevelopmentにおけるSampling coverage**
+表8　DevelopmentにおけるSampling coverage
 
 | Sampling | 平均frames | Any | 2 frames | Span | Context |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Adaptive 24枚 | 23.3 | **100.0%** | 97.4% | 96.1% | **100.0%** |
-| Mixed sampling 24枚 | 23.2 | **100.0%** | **98.9%** | **97.1%** | **100.0%** |
-| Uniform 24枚 | 24.0 | 99.8% | **98.9%** | **97.1%** | 89.2% |
+| Adaptive 24枚 | 23.3 | 100.0% | 97.4% | 96.1% | 100.0% |
+| Mixed sampling 24枚 | 23.2 | 100.0% | 98.9% | 97.1% | 100.0% |
+| Uniform 24枚 | 24.0 | 99.8% | 98.9% | 97.1% | 89.2% |
 
 Mixed samplingは複数frameとevent内span、Adaptiveはevent前後contextを多く保持したが、表7のF1ではUniformが最良だった。
 したがって、GT eventを機械的に多く含めることと、VLMがその意味を正しく判定することは同義ではない。
@@ -586,14 +586,14 @@ frame数の変更より、タグの肯定条件と除外条件を確認する手
 同一Development 169 clips、同一Super、同一24-frame media、temperature 0で、Baseline、全タグContrastive、三つのHybrid候補を比較した。
 三つのHybrid候補は同じrun内でランダムに混在させ、request順序の偏りを抑えた。
 
-**表9　DevelopmentにおけるHybrid Prompt候補の比較**
+表9　DevelopmentにおけるHybrid Prompt候補の比較
 
 | Prompt | Criteria語数 | 詳細化タグ数 | Precision | Recall | F1 | MCC |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Baseline | 213 | 0 | **86.2%** | 62.1% | 72.2% | 0.663 |
+| Baseline | 213 | 0 | 86.2% | 62.1% | 72.2% | 0.663 |
 | Full Contrastive | 1,273 | 13 | 85.6% | 65.8% | 74.4% | 0.683 |
 | Hybrid Core | 603 | 5 | 85.6% | 67.6% | 75.6% | 0.695 |
-| Hybrid Temporal | 778 | 7 | 85.8% | **67.8%** | **75.8%** | **0.697** |
+| Hybrid Temporal | 778 | 7 | 85.8% | 67.8% | 75.8% | 0.697 |
 | Hybrid F1-selected | 850 | 8 | 84.9% | 66.4% | 74.5% | 0.682 |
 
 数値上はHybrid Temporalが最良だった。
@@ -605,7 +605,7 @@ Hybrid CoreはBaselineに対してmicro F1を+3.34ポイント改善した。
 13タグすべての変化を表10に示す。
 表10は論文のPrompt選定runから再集計した、論文非掲載のタグ別内訳である。
 
-**表10　Hybrid Coreによるタグ別F1の変化**
+表10　Hybrid Coreによるタグ別F1の変化
 
 | タグ | GT positive | Baseline F1 | Hybrid Core F1 | 差 |
 | --- | ---: | ---: | ---: | ---: |
@@ -634,13 +634,13 @@ Hybrid CoreはBaselineに対してmicro F1を+3.34ポイント改善した。
 固定したEvaluation 875 clipsに対するFull Run結果を表11に示す。
 Hybrid CoreはまだEvaluation Full Runを実施していないため、この表のSuperは従来のReasoned Promptを用いる。
 
-**表11　Evaluation Full Runの品質と定常GPU推論費用**
+表11　Evaluation Full Runの品質と定常GPU推論費用
 
 | モデルと入力 | Coverage | Precision | Recall | Micro F1 | Macro F1 | Accuracy | MCC | GPU費用 / 1,000 clips |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Nano / Adaptive 24枚 | 100% | 71.3% | 66.7% | 68.9% | 58.2% | 85.6% | 0.596 | $0.66 |
-| Nano / Uniform 24枚 | 100% | 73.4% | 65.9% | 69.4% | 58.2% | 86.1% | 0.606 | $0.69 |
-| Super / Adaptive 24枚 | 100% | **81.9%** | **68.3%** | **74.5%** | **62.5%** | **88.8%** | **0.678** | $13.48 |
+| Nano / Adaptive 24枚 | 100% | 71.3% | 66.7% | 68.9% | 58.2% | 85.6% | 0.596 | USD 0.66 |
+| Nano / Uniform 24枚 | 100% | 73.4% | 65.9% | 69.4% | 58.2% | 86.1% | 0.606 | USD 0.69 |
+| Super / Adaptive 24枚 | 100% | 81.9% | 68.3% | 74.5% | 62.5% | 88.8% | 0.678 | USD 13.48 |
 
 本評価内では、SuperがNanoより高いPrecisionとF1を示した。
 改善幅はRecallよりPrecisionで大きく、予測positiveに占めるFalse Positiveの割合がNanoより低かった。
@@ -658,7 +658,7 @@ Superの全体F1は74.5%だが、タグ別には大きな差がある。
 13タグすべての結果を表12に示す。
 表12のF1は論文主表と同一であり、RecallとGT positive数は同じEvaluation artifactから再集計した補足値である。
 
-**表12　Superのタグ別Precision、Recall、F1**
+表12　Superのタグ別Precision、Recall、F1
 
 | タグ | GT positive | Precision | Recall | F1 |
 | --- | ---: | ---: | ---: | ---: |
@@ -689,12 +689,12 @@ Superの全体F1は74.5%だが、タグ別には大きな差がある。
 Superの映像予測に固定VO priorを適用した結果を表13に示す。
 この規則はDevelopmentで固定し、Evaluationでは変更していない。
 
-**表13　Super映像予測と固定VO priorの比較**
+表13　Super映像予測と固定VO priorの比較
 
 | 方式 | Precision | Recall | F1 | MCC | 追加GPU request |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Super映像のみ | 81.9% | 68.3% | 74.5% | 0.678 | なし |
-| Super + 固定VO prior | **82.8%** | **70.5%** | **76.2%** | **0.698** | なし |
+| Super + 固定VO prior | 82.8% | 70.5% | 76.2% | 0.698 | なし |
 
 F1差は+1.7ポイントで、source-video block bootstrapの95%区間は+1.3から+2.2ポイントだった。
 90 clip-tag pairsが正しくなり、16 pairsが悪化した。
@@ -722,7 +722,7 @@ Super Full RunのFalse Negative 861件を、GT event区間と入力timestampの�
 
 分類結果を表14に示す。
 
-**表14　SuperのFalse Negativeと時間的coverage**
+表14　SuperのFalse Negativeと時間的coverage
 
 | 分類 | 件数 | 割合 |
 | --- | ---: | ---: |
@@ -741,7 +741,7 @@ Coveredの基準は2枚以上かつ0.5秒以上という粗い条件であり、
 対象物の画素数、遮蔽、night scene、trackの同一性、道路geometry、Promptの定義、GT境界も含む。
 
 MissとSparseの42件は、少なくとも現在の粗いcoverage基準で説明できる誤りである。
-SuperのGT positiveはTP 1,851件とFN 861件の合計2,712件であるため、42件をすべて回復できたと仮定した机上のRecall増加は \(42/2712=1.55\) pointsとなる。
+SuperのGT positiveはTP 1,851件とFN 861件の合計2,712件であるため、42件をすべて回復できたと仮定した机上のRecall増加は $42/2712=1.55$ pointsとなる。
 これは実測改善ではなく、MissとSparseだけを完全回復する反実仮想である。
 また、この+1.55 pointsは「時間密度改善全体の上限」ではない。
 Covered内部にも局所密度で回復する事例が存在するためである。
@@ -751,7 +751,7 @@ Covered内部にも局所密度で回復する事例が存在するためであ�
 
 Superの低Recallタグについて、不足している証拠と、単純なFPS増加だけでは不十分な理由を表15に整理する。
 
-**表15　低Recallタグに不足する証拠**
+表15　低Recallタグに不足する証拠
 
 | タグ | 主な不足 | 単純なFPS増加だけで不十分な理由 |
 | --- | --- | --- |
@@ -779,16 +779,16 @@ negative controlが7件しかなく、1件の差が割合を大きく変える�
 さらに現行24枚の時点で5/7件が既にFalse Positiveであり、新規False Positiveを検出できる余地は2件しかない。
 したがって、この対照集合から安全性を強く主張することはできない。
 
-**表16　48-frame Oracle診断による既存誤りの変化**
+表16　48-frame Oracle診断による既存誤りの変化
 
 | 入力条件 | 既存FNの回復 | 既存TPの維持 | Negative-control FP |
 | --- | ---: | ---: | ---: |
 | 現行24枚 | 0 / 14 | 7 / 7 | 5 / 7 |
 | Oracle時刻 24枚 | 2 / 14 | 7 / 7 | 4 / 7 |
-| Oracle時刻 48枚 | **5 / 14** | **7 / 7** | 4 / 7 |
+| Oracle時刻 48枚 | 5 / 14 | 7 / 7 | 4 / 7 |
 | 48枚 + multi-scale | 3 / 14 | 6 / 7 | 2 / 7 |
 | 48枚 + GT-box ROI | 4 / 14 | 5 / 7 | 3 / 7 |
-| ROI + VO | 3 / 14 | 5 / 7 | **1 / 7** |
+| ROI + VO | 3 / 14 | 5 / 7 | 1 / 7 |
 | ROI + 匿名track + VO | 5 / 14 | 5 / 7 | 3 / 7 |
 
 Oracle 48枚はhard labelのFNを5件回復し、7件の既存TPを維持した。
@@ -808,16 +808,16 @@ cropは対象物を拡大するが、元画像の画素数を増やすわけで�
 現行24枚とOracle 48枚の双方でscore thresholdを変えた探索結果を表17に示す。
 同じ24 clipsでthresholdを比較しているため、これは上限診断であり、未知データへそのまま適用できる閾値ではない。
 
-**表17　未校正YES scoreの閾値と診断集合上のトレードオフ**
+表17　未校正YES scoreの閾値と診断集合上のトレードオフ
 
 | Evidence | YES score閾値 | 既存FNの回復 | TP維持 | Negative-control FP | 診断集合Precision | 診断集合Recall |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 現行24枚 | 0.05 | 10 / 14 | 7 / 7 | 6 / 7 | 73.9% | 81.0% |
 | 現行24枚 | 0.20 | 8 / 14 | 7 / 7 | 4 / 7 | 78.9% | 71.4% |
 | 現行24枚 | 0.40 | 6 / 14 | 7 / 7 | 4 / 7 | 76.5% | 61.9% |
-| Oracle 48枚 | 0.05 | **11 / 14** | 7 / 7 | 5 / 7 | 78.3% | **85.7%** |
+| Oracle 48枚 | 0.05 | 11 / 14 | 7 / 7 | 5 / 7 | 78.3% | 85.7% |
 | Oracle 48枚 | 0.20 | 8 / 14 | 7 / 7 | 3 / 7 | 83.3% | 71.4% |
-| Oracle 48枚 | 0.40 | 7 / 14 | 7 / 7 | **2 / 7** | **87.5%** | 66.7% |
+| Oracle 48枚 | 0.40 | 7 / 14 | 7 / 7 | 2 / 7 | 87.5% | 66.7% |
 
 score thresholdを下げるとFNは回復するが、negative controlのFPが増える。
 現行24枚でもthreshold 0.05では診断Recall 81.0%まで上がったため、改善の一部は48枚ではなく、multi-label hard decisionをタグ別scoreへ変えた効果である。
@@ -848,14 +848,14 @@ Nanoの同じ15 clipsを用い、Pod再作成によってcache状態を揃えた
 concurrencyはGPUへ同時に投入する最大request数である。
 P95はrequest latencyの95 percentileであり、遅い側5%の境界を表す。
 
-**表18　Nanoのconcurrency controlled sweep（3反復の平均±標本標準偏差）**
+表18　Nanoのconcurrency controlled sweep（3反復の平均±標本標準偏差）
 
 | Nano設定 | Wall / clip | 15-clip P95 | Prefill | Decode | GPU費用 / 1,000 clips |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| c1 | 3.61±0.20 s | 2.60±0.04 s | 0.98±0.00 s | 0.38±0.01 s | $2.245±0.122 |
-| c2 | 1.85±0.01 s | 3.87±0.03 s | 1.14±0.01 s | 0.74±0.01 s | $1.151±0.008 |
-| c4 | 1.38±0.01 s | 5.75±0.06 s | 1.39±0.00 s | 1.43±0.00 s | $0.862±0.003 |
-| c8 | **1.22±0.04 s** | 13.78±1.19 s | 1.54±0.04 s | 3.21±0.13 s | **$0.759±0.025** |
+| c1 | 3.61±0.20 s | 2.60±0.04 s | 0.98±0.00 s | 0.38±0.01 s | USD 2.245±0.122 |
+| c2 | 1.85±0.01 s | 3.87±0.03 s | 1.14±0.01 s | 0.74±0.01 s | USD 1.151±0.008 |
+| c4 | 1.38±0.01 s | 5.75±0.06 s | 1.39±0.00 s | 1.43±0.00 s | USD 0.862±0.003 |
+| c8 | 1.22±0.04 s | 13.78±1.19 s | 1.54±0.04 s | 3.21±0.13 s | USD 0.759±0.025 |
 
 c4はc1に対してthroughputを約2.6倍にし、3反復平均の費用を約61.6%削減した。
 c8は平均throughputと費用で最良だが、15-clip smokeのP95は13.8秒へ悪化した。
@@ -865,12 +865,12 @@ offlineの大量処理ではc8、個々のrequest待ち時間も重視する場�
 Superの15-clip Smokeを表19に示す。
 Superは4 GPU tensor parallelであり、g6.24xlargeのGPU間接続がPCIe-onlyであったため、vLLM custom all-reduceではなくNVIDIA Collective Communications Library（NCCL）fallbackを用いた。
 
-**表19　Superのconcurrency Smoke**
+表19　Superのconcurrency Smoke
 
 | Super設定 | Wall / clip | 15-clip P95 | Prefill | Decode | Preemption | GPU費用 / 1,000 clips |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| TP4、Chunked Prefill 8,192、c4 | 7.38 s | 30.47 s | 11.52 s | 9.52 s | 0 | $13.68 |
-| TP4、Chunked Prefill 8,192、c8 | **6.97 s** | 67.36 s | 17.51 s | 16.49 s | 4 | **$12.93** |
+| TP4、Chunked Prefill 8,192、c4 | 7.38 s | 30.47 s | 11.52 s | 9.52 s | 0 | USD 13.68 |
+| TP4、Chunked Prefill 8,192、c8 | 6.97 s | 67.36 s | 17.51 s | 16.49 s | 4 | USD 12.93 |
 
 c4の定常wall timeから単純換算すると約488 clips/hであり、875 clipsは約1.8時間に相当する。
 これはrequestが継続供給され、model startupやidleを含まない理想的な定常換算である。
@@ -903,15 +903,15 @@ Nanoで全件を判定し、条件を満たすclipだけSuperへ送る実用的�
 `歩行者positive`は歩行者横断待ちまたは歩行者横断がpositiveのclipを送る。
 `複雑時系列positive`は、自車左折、自車右折、車線変更、車両制動、停止車両、歩行者横断待ち、歩行者横断のいずれかがpositiveのclipを送る。
 
-**表20　NanoからSuperへのcascadeによる品質と費用**
+表20　NanoからSuperへのcascadeによる品質と費用
 
 | 構成 | Super routing率 | Precision | Recall | F1 | GPU費用 / 1,000 clips |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Nanoのみ | 0% | 73.4% | 65.9% | 69.4% | $0.69 |
-| Positive 3個以上をSuper | 39.8% | 79.9% | 63.0% | 70.4% | $6.05 |
-| 歩行者positiveをSuper | 23.7% | 78.4% | 63.8% | 70.3% | $3.88 |
-| 複雑時系列positiveをSuper | 69.1% | 83.1% | 65.8% | 73.4% | $10.01 |
-| Super全件 | 100% | 81.9% | 68.3% | 74.5% | $13.48 |
+| Nanoのみ | 0% | 73.4% | 65.9% | 69.4% | USD 0.69 |
+| Positive 3個以上をSuper | 39.8% | 79.9% | 63.0% | 70.4% | USD 6.05 |
+| 歩行者positiveをSuper | 23.7% | 78.4% | 63.8% | 70.3% | USD 3.88 |
+| 複雑時系列positiveをSuper | 69.1% | 83.1% | 65.8% | 73.4% | USD 10.01 |
+| Super全件 | 100% | 81.9% | 68.3% | 74.5% | USD 13.48 |
 
 cascadeは費用とF1の中間点を作る。
 ただしNanoがFalse Negativeを出したclipはSuperへ送られないため、positive-only routingではRecallが伸びにくい。
@@ -924,12 +924,12 @@ Recall改善には、VLMのpositiveではなく、detector、tracker、VOとの�
 シーンラベルの用途は、個々のclipを正しく分類することだけではない。
 タグ出現率の推定誤差をprevalence Mean Absolute Error（MAE）、13タグ分布の形状差をJensen-Shannon Divergence（JSD）で測定した。
 
-**表21　固定Full Runにおけるデータセット分布の推定誤差**
+表21　固定Full Runにおけるデータセット分布の推定誤差
 
 | モデルと入力 | Prevalence MAE | JSD |
 | --- | ---: | ---: |
 | Nano / Adaptive 24枚 | 0.084 | 0.048 |
-| Super / Adaptive 24枚 | **0.066** | **0.022** |
+| Super / Adaptive 24枚 | 0.066 | 0.022 |
 
 同じAdaptive 24-frame Full Runの比較では、Superは個別clipのF1だけでなく、データセット全体のタグ分布推定でもNanoを上回った。
 ただし、平均誤差0.066は、出現率が数%のrare tagに対しては大きな相対誤差となり得る。
@@ -957,7 +957,7 @@ Superの上位1%は9 clipsであり、Precision@Kは88.9%だった。
 各実験で立てた仮説、観測結果、最終設計へ残した知見を表22にまとめる。
 数値は前節までに示したDevelopmentまたはOracle診断の再掲であり、新しい母集団評価ではない。
 
-**表22　採用しなかった候補と棄却理由**
+表22　採用しなかった候補と棄却理由
 
 | 候補 | 実験前の仮説 | 観測結果 | 採否と残した知見 |
 | --- | --- | --- | --- |
@@ -1020,18 +1020,18 @@ flowchart TD
 現時点では設計仮説であり、Evaluation結果として報告しない。
 
 たとえば歩行者横断待ちでは、人物detectorのconfidenceだけでroutingすると、歩道を歩く人物も大量に候補となる。
-実装候補としては、同一person trackが縁石近傍に一定時間留まり、road ROIへ向く移動成分を持ち、一次VLMがnegativeである場合にだけ \(c_t(v)\) を高くする。
+実装候補としては、同一person trackが縁石近傍に一定時間留まり、road ROIへ向く移動成分を持ち、一次VLMがnegativeである場合にだけ $c_t(v)$ を高くする。
 これは今回評価した規則ではなく、表15と表17の診断から導いた次段階の設計仮説である。
-実装時にはDevelopmentとは別のcalibration setで \(\gamma_t\) を固定し、routing率、FN回復、新規FP、追加費用を同時に測る必要がある。
+実装時にはDevelopmentとは別のcalibration setで $\gamma_t$ を固定し、routing率、FN回復、新規FP、追加費用を同時に測る必要がある。
 
 ### 10.4 用途別の選択
 
 費用を優先する大量一次処理ではNano Uniform 24枚が候補となる。
-Evaluation F1は69.4%、Full Runの定常GPU費用は約$0.69 / 1,000 clipsだった。
+Evaluation F1は69.4%、Full Runの定常GPU費用は約USD 0.69 / 1,000 clipsだった。
 offline処理ではc8、tail latencyも考慮する場合はc4が運用候補となる。
 
 品質を優先する場合はSuper Adaptive 24枚と固定VO priorを用いる。
-Evaluation F1は76.2%であり、GPU推論費用はSuper Full Runの$13.48 / 1,000 clipsと同じである。
+Evaluation F1は76.2%であり、GPU推論費用はSuper Full RunのUSD 13.48 / 1,000 clipsと同じである。
 ただしCPU VO費用は別途発生する。
 
 Hybrid Coreと選択的48-frame再判定は、次段階の候補である。
@@ -1041,11 +1041,11 @@ Hybrid Coreと選択的48-frame再判定は、次段階の候補である。
 
 実務では、最終構成を一度に実装するより、証拠水準の高い順に段階導入する方がよい。
 
-1. **GTと評価器を固定する。** positive、negative、unknown、abstentionを区別し、source-video splitとcoverage gateを先に実装する。
-2. **単一requestの24-frame baselineを作る。** Uniformまたは既存Adaptive media、timestamp manifest、Reasoned Prompt、表1のindex契約を固定する。
-3. **用途に応じてNanoまたはSuperを選ぶ。** 大量一次処理ではNano c4/c8、品質優先ではSuper c4を起点とする。Full Run費用と少数clipのServing費用を混同しない。
-4. **再現可能な構造化証拠を追加する。** まず追加VLM requestを要しないVO fusionをDevelopmentで固定し、タグ限定で適用する。
-5. **最後に選択的な再判定を追加する。** detector、tracker、lane推定と一次negativeが矛盾するpairだけを候補化し、48-frame mediaとタグ別scoreを独立calibration setで評価する。
+1. GTと評価器を固定する。 positive、negative、unknown、abstentionを区別し、source-video splitとcoverage gateを先に実装する。
+2. 単一requestの24-frame baselineを作る。 Uniformまたは既存Adaptive media、timestamp manifest、Reasoned Prompt、表1のindex契約を固定する。
+3. 用途に応じてNanoまたはSuperを選ぶ。 大量一次処理ではNano c4/c8、品質優先ではSuper c4を起点とする。Full Run費用と少数clipのServing費用を混同しない。
+4. 再現可能な構造化証拠を追加する。 まず追加VLM requestを要しないVO fusionをDevelopmentで固定し、タグ限定で適用する。
+5. 最後に選択的な再判定を追加する。 detector、tracker、lane推定と一次negativeが矛盾するpairだけを候補化し、48-frame mediaとタグ別scoreを独立calibration setで評価する。
 
 この順序なら、各段階で増えた品質と費用を前段baselineへ帰属できる。
 逆に、最初から全clipを48枚化し、全タグを個別callし、Mapやtrackを同時投入すると、改善要因と失敗要因を切り分けられない。
