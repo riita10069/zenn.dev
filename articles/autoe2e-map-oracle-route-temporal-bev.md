@@ -3,7 +3,7 @@ title: "AutoE2Eの地図・事後経路条件付きBEVプランナを、ソー�
 emoji: "🗺️"
 type: "tech"
 topics: ["自動運転", "機械学習", "コンピュータビジョン", "Autoware", "論文"]
-published: false
+published: true
 ---
 
 Autoware Foundation の Robotaxi Working Group で開発している AutoE2E について、モデル実装、チェックポイント、評価アーティファクトを照合し、日英の技術論文としてまとめました。
