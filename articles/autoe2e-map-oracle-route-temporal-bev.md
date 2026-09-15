@@ -6,7 +6,8 @@ topics: ["自動運転", "機械学習", "コンピュータビジョン", "Auto
 published: true
 ---
 
-自動運転モデルの評価では、同じ ADE や FDE でも、どの入力を与えたかで数字の意味が変わります。カメラだけで測った結果と、HD 地図や経路を与えた結果を同じ精度表に並べても、そのまま比較には使えません。
+![評価対象アーキテクチャ](/images/autoe2e-route-conditioned/architecture.png)
+
 
 Autoware Foundation は、Autoware E2E による SAE Level 4+ を長期目標に置いています。公開されている [Multi-Year Roadmap](https://docs.autoware.org/main/home/roadmap/multi-year-roadmap/) では、暦年ではなく Year 3 に TRL-6 の単車 Robotaxi パイロットを掲げています。Robotaxi Working Group では、活動上の作業目標として2027年の L4 公道デモを置いています。
 
@@ -45,20 +46,6 @@ Autoware Foundation は、Autoware E2E による SAE Level 4+ を長期目標に
 - nuPlan Epoch 5: `ca8b43d7a777`
 - KITScenes Epoch 5: `120a21639d97`
 - KITScenes Epoch 7: `a1e6b1621018`
-
-:::details 再現性に使う識別子
-- モデル構成: `bevformer_v2_t8_split_navigation_v5`
-- 実装確認リビジョン: `addebfa45278`
-- BEVFormer V2 R50 T8 初期値: `5585bc4d3ff8`
-- KITScenes データ改訂 / SDK 改訂: `6fde0034…` / `7765cdec…`
-- ラスタライザ: `navigation_rasterizer_v1`
-- オープンループ評価器: `reactive_open_loop_metrics_v1`
-- 制御積分器: `semi_implicit_unicycle_v1`
-- nuPlan 内部検証: `reactive_trajectory_route_validation_6p4s_v1`
-- KITScenes 内部検証: `kitscenes_internal_trajectory_route_validation_6p4s_v1`
-- 外部トラック役割: `official_val_camera_map_route`、`official_test_camera_only_missing_map_route`
-- KITScenes 評価精度: CUDA BF16 autocast
-:::
 
 KITScenes 微調整では、公式 train 分割の533シーンから空の129シーンを除いた404シーンを、学習364シーンと内部検証40シーンに固定分割しました。公式 Val 117シーン、Test 206シーンとはシーン ID が重なりません。
 
@@ -138,9 +125,12 @@ KITScenes 微調整では、公式 train 分割の533シーンから空の129シ
 
 地図は走行可能領域や車線などが広く分布する密な入力です。経路は細いコリドーと小さな目的地からなる疎な入力です。
 
-```text
-B_nav = E_map(Map) + sigmoid(g_route) * E_route(Route)
-```
+$$
+\mathbf{B}_{\mathrm{nav}}
+= E_{\mathrm{map}}\left(\mathrm{Map}\right)
++ \sigma\left(g_{\mathrm{route}}\right)
+  E_{\mathrm{route}}\left(\mathrm{Route}\right)
+$$
 
 地図と経路を別々に符号化し、経路側を256次元のチャネル別ゲートで制御してから加算します。その後、各カメラ BEV セルがナビゲーション BEV 上の8点を参照する Deformable Cross Attention で融合します。
 
@@ -155,12 +145,17 @@ GRU プランナは XY waypoint を直接出しません。0.1秒ごとの加速
 
 各ステップでは、融合 BEV 上の16点を Deformable Attention で参照し、GRU の状態を更新します。学習損失と評価では、半陰的ユニサイクルモデル（semi-implicit unicycle model）で加速度・曲率を XY へ積分します。
 
-```text
-v_t     = max(v_{t-1} + acceleration_t * 0.1, 0)
-heading = cumulative_sum(v_t * curvature_t * 0.1)
-x       = cumulative_sum(v_t * cos(heading) * 0.1)
-y       = cumulative_sum(v_t * sin(heading) * 0.1)
-```
+$$
+\begin{aligned}
+\Delta t &= 0.1\,\mathrm{s}, \\
+v_t &= \max\left(v_{t-1} + a_t \Delta t, 0\right), \\
+\psi_t &= \sum_{\tau=1}^{t} v_\tau \kappa_\tau \Delta t, \\
+x_t &= \sum_{\tau=1}^{t} v_\tau \cos\left(\psi_\tau\right) \Delta t, \\
+y_t &= \sum_{\tau=1}^{t} v_\tau \sin\left(\psi_\tau\right) \Delta t.
+\end{aligned}
+$$
+
+ここで $a_t$ は加速度、$\kappa_t$ は曲率、$\psi_t$ は方位です。
 
 初速 `v_0` は現在速度です。速度を先に更新し、その速度を同じステップの向き・位置更新に使います。
 
