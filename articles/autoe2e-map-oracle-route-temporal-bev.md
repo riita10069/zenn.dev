@@ -280,7 +280,6 @@ KITScenes 微調整後の2チェックポイントは、同じ Val 再生上で 
 
 数字だけを横に置くと AutoE2E が低く見えますが、同じ土俵ではありません。
 
-- UniAD は KITScenes 未学習のゼロショット、AutoE2E は KITScenes で微調整済み
 - UniAD は左折・右折・直進の離散コマンド、AutoE2E は HD 地図と oracle 事後経路を入力
 - サンプル集合、密度、ADE 集約、他の安全指標が異なる
 - AutoE2E の外部再生は生成時入力を独立に再検証できない
