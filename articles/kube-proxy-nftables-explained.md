@@ -1,5 +1,5 @@
 ---
-title: "図で理解する kube-proxy の nftables モード、iptables の限界から実装まで"
+title: "kube-proxy の nftables モードを iptables の限界から実装まで読み解く"
 emoji: "🧱"
 type: "tech"
 topics: ["Kubernetes", "kubeproxy", "nftables", "iptables", "Linux"]
